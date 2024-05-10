@@ -6,7 +6,7 @@ producer_consumer::producer_consumer(QWidget* parent)
 	producerNumber = 0;
 	consumerNumber = 0;
 	bufferLength = 0;
-
+	srand(time(0));
 	ui.setupUi(this);
 
 }
@@ -90,6 +90,7 @@ void producer_consumer::producer(int id, int itemsToProduce)
 {
 	for (int i = 0; i < itemsToProduce; ++i)
 	{
+
 		std::unique_lock<std::mutex> lock(mtx);//获得互斥锁
 		cond_empty.wait(lock, [this] { return bufferSize < bufferLength; }); // 等待缓冲区非满
 
@@ -109,7 +110,7 @@ void producer_consumer::producer(int id, int itemsToProduce)
 		cond_full.notify_one();
 
 		lock.unlock();//释放互斥锁
-		//std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 模拟生产时间
+		std::this_thread::sleep_for(std::chrono::milliseconds((rand() % 7) / 5)); // 模拟生产时间
 	}
 }
 
@@ -118,6 +119,7 @@ void producer_consumer::consumer(int id, int items_to_consume)
 {
 	for (int i = 0; i < items_to_consume; i++)
 	{
+
 		std::unique_lock<std::mutex> lock(mtx);//获得互斥锁
 		cond_full.wait(lock, [this] { return bufferSize > 0; }); // 等待缓冲区非空
 
@@ -138,7 +140,7 @@ void producer_consumer::consumer(int id, int items_to_consume)
 		cond_empty.notify_one();
 
 		lock.unlock();//释放互斥锁
-		//std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 模拟消费时间
+		std::this_thread::sleep_for(std::chrono::milliseconds((rand() % 7) / 5)); // 模拟消费时间
 	}
 }
 
